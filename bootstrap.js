@@ -64,6 +64,7 @@
 
     start: function() {
       this.list.new.forEach(ctrl => {
+        // TODO accepter ctrl.name sous forme de plusieurs controllers séparés par des virgules... (?)
         if (ctrl.name in this.options.controllers) {
           // TODO: utiliser $().data() pour stocker l'instance.
           // Mais quoi qu'il en soit, on ne peut pas instsancier 2 controllers sur le même node...
@@ -85,7 +86,7 @@
       virtual: 'data-bootstrap-virtual',
       root: 'data-bootstrap-root',
       part: 'data-bootstrap-part',
-      alive: 'data-bootstrap-alive',
+      alive: 'data-bootstrap-alive'
     },
 
     event: {ready: 'ready.bootstrap'},
