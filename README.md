@@ -1,2 +1,3 @@
-# bootstrap
-Simple MVC
+# Bootstrap
+
+Simple DOM parser to bootstrap app controllers

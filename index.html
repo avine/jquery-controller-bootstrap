@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+  <title>Bootstrap POC</title>
+
+  <script src="node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="bootstrap.js"></script>
+
+  <style>
+    div {
+      border: 1px dotted #ccc;
+      margin: 0.5em;
+      padding: 0.5em;
+    }
+  </style>
+</head>
+<body>
+
+  <!--<div data-bootstrap-root="Ctrl">
+    Root1
+  </div>
+
+  <div data-bootstrap-part="Ctrl">
+    Part1
+  </div>-->
+
+  <div data-bootstrap-root="Parent">
+    Parent
+    <div data-bootstrap-part="Child1">
+      Child1
+    </div>
+    <div data-bootstrap-part="Child2">
+      Child2
+      <input type="text" />
+    </div>
+  </div>
+
+  <!--<div data-bootstrap-part="Ctrl">
+    Part3
+    <div data-bootstrap-root="Ctrl">
+      Root3
+    </div>
+    <div data-bootstrap-root="Ctrl">
+      Root3
+    </div>
+  </div>-->
+
+
+
+
+  <script>
+
+    var myControllers = {
+
+      Parent: function (node, scope) {
+        console.log('Parent', node, scope);
+      },
+
+      Child1: function (node, scope) {
+        console.log('Child1', node, scope);
+
+        $(scope).on('inputChange', function (e, data) {
+          console.info('Child1: inputChange', data);
+          $(node).append('<div>'+data+'</div>');
+        });
+      },
+
+      Child2: function (node, scope) {
+
+        var $input = $(node).find('input');
+
+        $input.on('change', function (e) {
+          $(scope).trigger('inputChange', $input.val());
+        });
+
+        $(scope).on('ready.bootstrap', function () {
+          $input.val('Ready');
+          $input.trigger('change');
+        });
+      }
+
+    };
+
+    var bootstrap = new Bootstrap(document.body, { controllers: myControllers });
+    console.log(bootstrap);
+
+  </script>
+
+</body>
+</html>
