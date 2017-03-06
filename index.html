@@ -27,7 +27,7 @@
     Part1
   </div>-->
 
-  <div data-bootstrap-root="Parent">
+  <div data-bootstrap-root="Parent, Extra">
     Parent
     <div data-bootstrap-part="Child1">
       Child1
@@ -55,28 +55,43 @@
 
     var myControllers = {
 
-      Parent: function (node, scope) {
-        console.log('Parent', node, scope);
+      Extra: function (node, channel) {
+        this.node = node;
+        this.channel = channel;
+
+        console.log('Extra', node, channel);
       },
 
-      Child1: function (node, scope) {
-        console.log('Child1', node, scope);
+      Parent: function (node, channel) {
+        this.node = node;
+        this.channel = channel;
 
-        $(scope).on('inputChange', function (e, data) {
+        console.log('Parent', node, channel);
+      },
+
+      Child1: function (node, channel) {
+        this.node = node;
+        this.channel = channel;
+
+        console.log('Child1', node, channel);
+
+        channel.listen('inputChange', function (e, data) {
           console.info('Child1: inputChange', data);
           $(node).append('<div>'+data+'</div>');
         });
       },
 
-      Child2: function (node, scope) {
+      Child2: function (node, channel) {
+        this.node = node;
+        this.channel = channel;
 
         var $input = $(node).find('input');
 
         $input.on('change', function (e) {
-          $(scope).trigger('inputChange', $input.val());
+          channel.dispatch('inputChange', $input.val());
         });
 
-        $(scope).on('ready.bootstrap', function () {
+        channel.ready(function () {
           $input.val('Ready');
           $input.trigger('change');
         });

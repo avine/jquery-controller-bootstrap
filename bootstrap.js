@@ -18,30 +18,29 @@
     fire: function() {
       this.list = {old: [], new: []};
       this.parse(this.$element, this.scope, true);
-      this.start();
+      this.instanciate();
     },
 
     parse: function($node, scope, init) {
-      const that = this;
       if (init) {
-        scope = that.scanCtrl($node, scope);
+        scope = this.scanCtrl($node, scope);
       }
       $node.children().each((index, child) => {
         const $child = $(child);
-        that.parse($child, that.scanCtrl($child, scope));
+        this.parse($child, this.scanCtrl($child, scope));
       });
     },
 
     scanCtrl: function($node, scope) {
-      const attr = this.scanAttr($node);
       let newScope = scope;
+      const attr = this.scanAttr($node);
       if (attr) {
         if (attr.isRoot) {
           newScope = $node[0];
         }
-        this.list[attr.alive ? 'old' : 'new'].unshift({
+        this.list[this.isAlive($node) ? 'old' : 'new'].unshift({
           isRoot: attr.isRoot,
-          name: attr.ctrl,
+          values: attr.values,
           node: $node[0],
           scope: newScope
         });
@@ -50,46 +49,70 @@
     },
 
     scanAttr: function($node) {
-      const alive = typeof $node.attr(this.options.attr.alive) !== 'undefined';
-      let ctrl = $node.attr(this.options.attr.root);
-      if (typeof ctrl !== 'undefined') {
-        return {isRoot: true, ctrl: ctrl, alive: alive};
+      let value = $node.attr(this.options.attr.root);
+      if (typeof value !== 'undefined') {
+        return {isRoot: true, values: this.str2Arr(value)};
       }
-      ctrl = $node.attr(this.options.attr.part);
-      if (typeof ctrl !== 'undefined') {
-        return {isRoot: false, ctrl: ctrl, alive: alive};
+      value = $node.attr(this.options.attr.part);
+      if (typeof value !== 'undefined') {
+        return {isRoot: false, values: this.str2Arr(value)};
       }
       return null;
     },
 
-    start: function() {
-      this.list.new.forEach(ctrl => {
-        // TODO accepter ctrl.name sous forme de plusieurs controllers séparés par des virgules... (?)
-        if (ctrl.name in this.options.controllers) {
-          // TODO: utiliser $().data() pour stocker l'instance.
-          // Mais quoi qu'il en soit, on ne peut pas instsancier 2 controllers sur le même node...
-          // voir si c'est un PB ou non...
-          $(ctrl.node).attr(this.options.attr.alive, '');
-          new this.options.controllers[ctrl.name](ctrl.node, ctrl.scope);
-          if (ctrl.isRoot) {
-            $(ctrl.scope).trigger('ready.bootstrap');
+    str2Arr: function (value) {
+      return value.replace(/\s/g, '').split(this.options.separator);
+    },
+
+    isAlive: function ($node) {
+      return !!$node.data(this.options.dataKey);
+    },
+
+    instanciate: function() {
+      this.list.new.forEach(item => {
+        const $node = $(item.node);
+        const dataValue = {};
+        item.values.forEach(value => {
+          if (value in this.options.controllers) {
+            dataValue[value] = new this.options.controllers[value](item.node, this.getChannel(item.scope));
           }
+        });
+        $node.data(this.options.dataKey, dataValue);
+        if (item.isRoot) {
+          $(item.scope).trigger(this.options.event.ready);
         }
       });
+    },
+
+    getChannel: function (scope) {
+      var ready = this.options.event.ready;
+      return {
+        ready: function (callback) {
+          $(scope).one(ready, callback);
+        },
+        listen: function (event, callback, once) {
+          $(scope)[once ? 'one' : 'on'](event, callback);
+        },
+        dispatch: function (event, data) {
+          $(scope).trigger(event, data);
+        }
+      };
     }
-  
+
   };
 
   Bootstrap.settings = {
-
     attr: {
       virtual: 'data-bootstrap-virtual',
       root: 'data-bootstrap-root',
-      part: 'data-bootstrap-part',
-      alive: 'data-bootstrap-alive'
+      part: 'data-bootstrap-part'
     },
 
+    dataKey: 'bootstrapInstances',
+
     event: {ready: 'ready.bootstrap'},
+
+    separator: ',',
 
     controllers: {}
   };
