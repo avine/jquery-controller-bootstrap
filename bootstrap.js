@@ -124,10 +124,7 @@
     define: function(node, api) {
       const $node = $(node);
       for (let method in api) {
-        $node.on(method, function() {
-          const args = Array.prototype.shift.call(arguments);
-          api[method].apply({}, args);
-        });
+        $node.on(method, (event, ...args) => api[method].apply({}, args));
       }
     },
     request: function(node, method, args) {
