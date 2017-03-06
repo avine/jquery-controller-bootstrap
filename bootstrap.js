@@ -1,27 +1,26 @@
 /* global jQuery */
 
 (function($) {
-  function Bootstrap(element, options) {
-    this.$element = $(element);
-    this.options = $.extend({}, Bootstrap.settings, options || {});
-    this.scope = this.$element.closest(`[${this.options.attr.root}]`)[0];
-    if (!this.scope) {
-      this.scope = $('<div>').attr(this.options.attr.virtual, '')[0];
+
+  class Bootstrap {
+
+    constructor(element, options) {
+      this.$element = $(element);
+      this.options = $.extend({}, Bootstrap.settings, options || {});
+      this.scope = this.$element.closest(`[${this.options.attr.root}]`)[0];
+      if (!this.scope) {
+        this.scope = $('<div>').attr(this.options.attr.virtual, '')[0];
+      }
+      this.fire();
     }
-    this.fire();
-  }
 
-  Bootstrap.prototype = {
-
-    constructor: Bootstrap,
-
-    fire: function() {
+    fire() {
       this.list = {old: [], new: []};
       this.parse(this.$element, this.scope, true);
       this.instanciate();
-    },
+    }
 
-    parse: function($node, scope, init) {
+    parse($node, scope, init) {
       if (init) {
         scope = this.scanCtrl($node, scope);
       }
@@ -29,9 +28,9 @@
         const $child = $(child);
         this.parse($child, this.scanCtrl($child, scope));
       });
-    },
+    }
 
-    scanCtrl: function($node, scope) {
+    scanCtrl($node, scope) {
       let newScope = scope;
       const attr = this.scanAttr($node);
       if (attr) {
@@ -46,9 +45,9 @@
         });
       }
       return newScope;
-    },
+    }
 
-    scanAttr: function($node) {
+    scanAttr($node) {
       let value = $node.attr(this.options.attr.root);
       if (typeof value !== 'undefined') {
         return {isRoot: true, values: this.str2Arr(value)};
@@ -58,17 +57,17 @@
         return {isRoot: false, values: this.str2Arr(value)};
       }
       return null;
-    },
+    }
 
-    str2Arr: function (value) {
+    str2Arr(value) {
       return value.replace(/\s/g, '').split(this.options.separator);
-    },
+    }
 
-    isAlive: function ($node) {
+    isAlive($node) {
       return !!$node.data(this.options.dataKey);
-    },
+    }
 
-    instanciate: function() {
+    instanciate() {
       this.list.new.forEach(item => {
         const $node = $(item.node);
         const dataValue = {};
@@ -82,24 +81,24 @@
           $(item.scope).trigger(this.options.event.ready);
         }
       });
-    },
+    }
 
-    getChannel: function (scope) {
+    getChannel(scope) {
       var ready = this.options.event.ready;
       return {
-        ready: function (callback) {
+        ready: function(callback) {
           $(scope).one(ready, callback);
         },
-        listen: function (event, callback, once) {
+        listen: function(event, callback, once) {
           $(scope)[once ? 'one' : 'on'](event, callback);
         },
-        dispatch: function (event, data) {
+        dispatch: function(event, data) {
           $(scope).trigger(event, data);
         }
       };
     }
 
-  };
+  }
 
   Bootstrap.settings = {
     attr: {
