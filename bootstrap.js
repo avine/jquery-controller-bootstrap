@@ -1,23 +1,23 @@
 /* global jQuery */
+'use strict';
 
 (function($) {
-  'use strict';
 
   class Bootstrap {
 
     constructor(element, options) {
       this.$element = $(element);
       this.options = $.extend({}, Bootstrap.settings, options || {});
-      this.scope = this.$element.closest(`[${this.options.attr.root}]`)[0];
-      if (!this.scope) {
-        this.scope = $('<div>').attr(this.options.attr.virtual, '')[0];
-      }
       this.parse();
     }
 
     parse() {
       this.list = {old: [], new: []};
-      this.traverse(this.$element, this.scope, true);
+      let scope = this.$element.closest(`[${this.options.attr.root}]`)[0];
+      if (!scope) {
+        scope = $('<div>').attr(this.options.attr.virtual, '')[0];
+      }
+      this.traverse(this.$element, scope, true);
       this.makeAlive();
     }
 
@@ -109,10 +109,10 @@
     eventReady = eventReady || Bootstrap.settings.event.ready;
     return {
       ready: function(callback) {
-        $(scope).one(eventReady, callback);
+        $(scope).one(eventReady, () => callback());
       },
       listen: function(event, callback, once) {
-        $(scope)[once ? 'one' : 'on'](event, callback);
+        $(scope)[once ? 'one' : 'on'](event, (e, data) => callback(data));
       },
       dispatch: function(event, data) {
         $(scope).trigger(event, data);

@@ -81,7 +81,7 @@
 
         console.log('Child1', node, channel);
 
-        channel.listen('inputChange', function (e, data) {
+        channel.listen('inputChange', function (data) {
           console.info('Child1: inputChange', data);
           $(node).append('<div>'+data+'</div>');
         });
