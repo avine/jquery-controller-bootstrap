@@ -73,6 +73,12 @@
             console.log('GO', this, arguments);
           }.bind(this)
         });
+
+        $(node).click(function (){
+          console.log('click!');
+          Bootstrap.api.request($(node).children('[data-bootstrap-part="Child2"]'), 'sayHello', [1, 2, 3]);
+        });
+        
       },
 
       Child1: function (node, channel) {
@@ -101,6 +107,12 @@
         channel.ready(function () {
           $input.val('Ready');
           $input.trigger('change');
+        });
+
+        Bootstrap.api.define(node, {
+          sayHello: function () {
+            console.log('hello from Child2!', arguments);
+          }
         });
       }
 

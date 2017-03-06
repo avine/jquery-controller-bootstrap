@@ -1,8 +1,8 @@
 /* global jQuery */
+
 'use strict';
 
 (function($) {
-
   class Bootstrap {
 
     constructor(element, options) {
@@ -75,9 +75,9 @@
         const aliveValue = {};
         item.values.forEach(value => {
           if (value in this.options.controllers) {
-            const controller = this.options.controllers[value];
+            const Controller = this.options.controllers[value];
             const channel = Bootstrap.getChannel(item.scope, this.options.event.ready);
-            aliveValue[value] = new controller(item.node, channel);
+            aliveValue[value] = new Controller(item.node, channel);
           }
         });
         $node.data(this.options.aliveKey, aliveValue);
@@ -123,14 +123,15 @@
   Bootstrap.api = {
     define: function(node, api) {
       const $node = $(node);
-      for (let event in api) {
-        $node.on(event, function (e, data) {
-          api[event].apply({}, data);
+      for (let method in api) {
+        $node.on(method, function() {
+          const args = Array.prototype.shift.call(arguments);
+          api[method].apply({}, args);
         });
       }
     },
-    request: function(node, event, args) {
-      $(node).trigger(event, [args]);
+    request: function(node, method, args) {
+      $(node).trigger(method, args);
     }
   };
 
