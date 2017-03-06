@@ -1,6 +1,7 @@
 /* global jQuery */
 
 (function($) {
+  'use strict';
 
   class Bootstrap {
 
@@ -11,33 +12,34 @@
       if (!this.scope) {
         this.scope = $('<div>').attr(this.options.attr.virtual, '')[0];
       }
-      this.fire();
+      this.parse();
     }
 
-    fire() {
+    parse() {
       this.list = {old: [], new: []};
-      this.parse(this.$element, this.scope, true);
-      this.instanciate();
+      this.traverse(this.$element, this.scope, true);
+      this.makeAlive();
     }
 
-    parse($node, scope, init) {
+    traverse($node, scope, init) {
       if (init) {
-        scope = this.scanCtrl($node, scope);
+        scope = this.findCtrl($node, scope);
       }
       $node.children().each((index, child) => {
         const $child = $(child);
-        this.parse($child, this.scanCtrl($child, scope));
+        this.traverse($child, this.findCtrl($child, scope));
       });
     }
 
-    scanCtrl($node, scope) {
+    findCtrl($node, scope) {
       let newScope = scope;
-      const attr = this.scanAttr($node);
+      const attr = this.findAttr($node);
       if (attr) {
         if (attr.isRoot) {
           newScope = $node[0];
         }
-        this.list[this.isAlive($node) ? 'old' : 'new'].unshift({
+        const type = this.isAlive($node) ? 'old' : 'new';
+        this.list[type].unshift({
           isRoot: attr.isRoot,
           values: attr.values,
           node: $node[0],
@@ -47,7 +49,7 @@
       return newScope;
     }
 
-    scanAttr($node) {
+    findAttr($node) {
       let value = $node.attr(this.options.attr.root);
       if (typeof value !== 'undefined') {
         return {isRoot: true, values: this.str2Arr(value)};
@@ -64,38 +66,25 @@
     }
 
     isAlive($node) {
-      return !!$node.data(this.options.dataKey);
+      return !!$node.data(this.options.aliveKey);
     }
 
-    instanciate() {
+    makeAlive() {
       this.list.new.forEach(item => {
         const $node = $(item.node);
-        const dataValue = {};
+        const aliveValue = {};
         item.values.forEach(value => {
           if (value in this.options.controllers) {
-            dataValue[value] = new this.options.controllers[value](item.node, this.getChannel(item.scope));
+            const controller = this.options.controllers[value];
+            const channel = Bootstrap.getChannel(item.scope, this.options.event.ready);
+            aliveValue[value] = new controller(item.node, channel);
           }
         });
-        $node.data(this.options.dataKey, dataValue);
+        $node.data(this.options.aliveKey, aliveValue);
         if (item.isRoot) {
           $(item.scope).trigger(this.options.event.ready);
         }
       });
-    }
-
-    getChannel(scope) {
-      var ready = this.options.event.ready;
-      return {
-        ready: function(callback) {
-          $(scope).one(ready, callback);
-        },
-        listen: function(event, callback, once) {
-          $(scope)[once ? 'one' : 'on'](event, callback);
-        },
-        dispatch: function(event, data) {
-          $(scope).trigger(event, data);
-        }
-      };
     }
 
   }
@@ -107,13 +96,42 @@
       part: 'data-bootstrap-part'
     },
 
-    dataKey: 'bootstrapInstances',
+    aliveKey: 'bootstrapInstances',
 
     event: {ready: 'ready.bootstrap'},
 
     separator: ',',
 
     controllers: {}
+  };
+
+  Bootstrap.getChannel = function(scope, eventReady) {
+    eventReady = eventReady || Bootstrap.settings.event.ready;
+    return {
+      ready: function(callback) {
+        $(scope).one(eventReady, callback);
+      },
+      listen: function(event, callback, once) {
+        $(scope)[once ? 'one' : 'on'](event, callback);
+      },
+      dispatch: function(event, data) {
+        $(scope).trigger(event, data);
+      }
+    };
+  };
+
+  Bootstrap.api = {
+    define: function(node, api) {
+      const $node = $(node);
+      for (let event in api) {
+        $node.on(event, function (e, data) {
+          api[event].apply({}, data);
+        });
+      }
+    },
+    request: function(node, event, args) {
+      $(node).trigger(event, [args]);
+    }
   };
 
   window.Bootstrap = Bootstrap;

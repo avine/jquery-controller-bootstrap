@@ -67,6 +67,12 @@
         this.channel = channel;
 
         console.log('Parent', node, channel);
+
+        Bootstrap.api.define(node, {
+          'GO': function () {
+            console.log('GO', this, arguments);
+          }.bind(this)
+        });
       },
 
       Child1: function (node, channel) {
@@ -79,6 +85,7 @@
           console.info('Child1: inputChange', data);
           $(node).append('<div>'+data+'</div>');
         });
+
       },
 
       Child2: function (node, channel) {
