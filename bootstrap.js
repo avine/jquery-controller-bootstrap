@@ -70,8 +70,8 @@
     }
 
     makeAlive() {
+      const scopes = [];
       this.list.new.forEach(item => {
-        const $node = $(item.node);
         const aliveValue = {};
         item.values.forEach(value => {
           if (value in this.options.controllers) {
@@ -80,21 +80,10 @@
             aliveValue[value] = new Controller(item.node, channel);
           }
         });
-        $node.data(this.options.aliveKey, aliveValue);
-        // FIXME: il y a un pb si on ajoute un noeud de type -part !
-        // dans ce cas, il n'y aura pas de .trigger du event.ready !
-        // En effet aucun des nouveaux noeuds n'est un -root!
-        // Et même s'il y avait un -root ce n'est pas forcément celui qui correspond
-        // au scope du -part cité précédemment...
-        //
-        // BUGFIX: il faut peut-être utiliser une seule pile (sans old et new)
-        // et taguer les new...
-        // Alors s'il y a un new il faut .trigger event.ready sur le premier -root suivant
-        // ...A TESTER...
-        if (item.isRoot) {
-          $(item.scope).trigger(this.options.event.ready);
-        }
+        $(item.node).data(this.options.aliveKey, aliveValue);
+        scopes.includes(item.scope) || scopes.push(item.scope);
       });
+      scopes.forEach(node => $(node).trigger(this.options.event.ready));
     }
 
   }

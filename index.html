@@ -19,22 +19,36 @@
 </head>
 <body>
 
-  <!--<div data-bootstrap-root="Ctrl">
+  <div data-bootstrap-root="Ctrl">
     Root1
   </div>
 
   <div data-bootstrap-part="Ctrl">
     Part1
-  </div>-->
+  </div>
 
   <div data-bootstrap-root="Parent, Extra">
     Parent
     <div data-bootstrap-part="Child1">
+
       Child1
+      <div data-bootstrap-part="Child2">
+        Sub1
+      </div>
+
     </div>
     <div data-bootstrap-part="Child2">
-      Child2
-      <input type="text" />
+
+      Child2 <input type="text" />
+
+      <div data-bootstrap-part>
+        Sub2
+
+          <div data-bootstrap-root>
+            Deep2
+          </div>
+      </div>
+
     </div>
   </div>
 
