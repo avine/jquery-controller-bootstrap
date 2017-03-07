@@ -96,7 +96,7 @@
       part: 'data-bootstrap-part'
     },
 
-    aliveKey: 'bootstrapInstances',
+    aliveKey: 'bootstrapCtrls',
 
     event: {ready: 'ready.bootstrap'},
 
