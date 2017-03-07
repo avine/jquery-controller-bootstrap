@@ -2,7 +2,7 @@
 
 'use strict';
 
-(function($) {
+window.Bootstrap = (function($) {
   class Bootstrap {
 
     constructor(element, options) {
@@ -131,5 +131,5 @@
     }
   };
 
-  window.Bootstrap = Bootstrap;
+  return Bootstrap;
 }(jQuery));
