@@ -112,7 +112,7 @@ window.Bootstrap = (function($) {
     eventReady = eventReady || Bootstrap.settings.event.ready;
     return {
       ready: function(callback) {
-        $(scope).one(eventReady, function () { callback(); });
+        $(scope).one(eventReady, function() { callback(); });
       },
       listen: function(event, callback, once) {
         $(scope)[once ? 'one' : 'on'](event, function(e, data) { callback(data); });
