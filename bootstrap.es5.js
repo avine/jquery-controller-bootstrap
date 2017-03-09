@@ -3,42 +3,46 @@
 'use strict';
 
 window.Bootstrap = (function($) {
-  class Bootstrap {
+  function Bootstrap(element, options) {
+    this.$element = $(element);
+    this.options = $.extend({}, Bootstrap.settings, options || {});
+    this.parse();
+  }
 
-    constructor(element, options) {
-      this.$element = $(element);
-      this.options = $.extend({}, Bootstrap.settings, options || {});
-      this.parse();
-    }
+  Bootstrap.prototype = {
 
-    parse() {
-      let scope = this.$element.closest(`[${this.options.attr.root}]`)[0];
+    constructor: Bootstrap,
+
+    parse: function() {
+      var scope = this.$element.closest('[' + this.options.attr.root + ']')[0];
       if (!scope) {
         scope = $('<div>').attr(this.options.attr.virtual, '')[0];
       }
-      this.list = {old: [], new: []};
+      this.list = {old: [], 'new': []};
       this.traverse(this.$element, scope, true);
       this.makeAlive();
-    }
+    },
 
-    traverse($node, scope, init) {
+    traverse: function($node, scope, init) {
+      var _this = this;
       if (init) {
         scope = this.findCtrl($node, scope);
       }
-      $node.children().each((index, child) => {
-        const $child = $(child);
-        this.traverse($child, this.findCtrl($child, scope));
+      $node.children().each(function(index, child) {
+        var $child = $(child);
+        _this.traverse($child, _this.findCtrl($child, scope));
       });
-    }
+    },
 
-    findCtrl($node, scope) {
-      let newScope = scope;
-      const attr = this.findAttr($node);
+    findCtrl: function($node, scope) {
+      var newScope = scope,
+        attr = this.findAttr($node),
+        type;
       if (attr) {
         if (attr.isRoot) {
           newScope = $node[0];
         }
-        const type = this.isAlive($node) ? 'old' : 'new';
+        type = this.isAlive($node) ? 'old' : 'new';
         this.list[type].unshift({
           isRoot: attr.isRoot,
           values: attr.values,
@@ -47,10 +51,10 @@ window.Bootstrap = (function($) {
         });
       }
       return newScope;
-    }
+    },
 
-    findAttr($node) {
-      let value = $node.attr(this.options.attr.root);
+    findAttr: function($node) {
+      var value = $node.attr(this.options.attr.root);
       if (typeof value !== 'undefined') {
         return {isRoot: true, values: this.str2Arr(value)};
       }
@@ -59,34 +63,38 @@ window.Bootstrap = (function($) {
         return {isRoot: false, values: this.str2Arr(value)};
       }
       return null;
-    }
+    },
 
-    str2Arr(value) {
+    str2Arr: function(value) {
       return value.replace(/\s/g, '').split(this.options.separator);
-    }
+    },
 
-    isAlive($node) {
+    isAlive: function($node) {
       return !!$node.data(this.options.aliveKey);
-    }
+    },
 
-    makeAlive() {
-      const scopes = [];
-      this.list.new.forEach(item => {
-        const aliveValue = {};
-        item.values.forEach(value => {
-          if (value in this.options.controllers) {
-            const Controller = this.options.controllers[value];
-            const channel = Bootstrap.getChannel(item.scope, this.options.event.ready);
+    makeAlive: function() {
+      var _this = this,
+        scopes = [];
+      this.list['new'].forEach(function(item) {
+        var aliveValue = {};
+        item.values.forEach(function(value) {
+          var Controller, channel;
+          if (value in _this.options.controllers) {
+            Controller = _this.options.controllers[value];
+            channel = Bootstrap.getChannel(item.scope, _this.options.event.ready);
             aliveValue[value] = new Controller(item.node, channel);
           }
         });
-        $(item.node).data(this.options.aliveKey, aliveValue);
+        $(item.node).data(_this.options.aliveKey, aliveValue);
         scopes.includes(item.scope) || scopes.push(item.scope);
       });
-      scopes.forEach(node => $(node).trigger(this.options.event.ready));
+      scopes.forEach(function(node) {
+        $(node).trigger(_this.options.event.ready);
+      });
     }
 
-  }
+  };
 
   Bootstrap.settings = {
     attr: {
@@ -104,10 +112,10 @@ window.Bootstrap = (function($) {
     eventReady = eventReady || Bootstrap.settings.event.ready;
     return {
       ready: function(callback) {
-        $(scope).one(eventReady, () => callback());
+        $(scope).one(eventReady, function () { callback(); });
       },
       listen: function(event, callback, once) {
-        $(scope)[once ? 'one' : 'on'](event, (e, data) => callback(data));
+        $(scope)[once ? 'one' : 'on'](event, function(e, data) { callback(data); });
       },
       dispatch: function(event, data) {
         $(scope).trigger(event, data);
@@ -117,9 +125,12 @@ window.Bootstrap = (function($) {
 
   Bootstrap.api = {
     define: function(node, api) {
-      const $node = $(node);
-      for (const method in api) {
-        $node.on(method, (event, ...args) => api[method].apply({}, args));
+      var $node = $(node), method;
+      for (method in api) {
+        $node.on(method, function() {
+          var args = Array.prototype.shift(arguments);
+          api[method].apply({}, args);
+        });
       }
     },
     request: function(node, method, args) {
