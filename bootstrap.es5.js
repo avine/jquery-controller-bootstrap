@@ -87,7 +87,7 @@ window.Bootstrap = (function($) {
           }
         });
         $(item.node).data(_this.options.aliveKey, aliveValue);
-        scopes.includes(item.scope) || scopes.push(item.scope);
+        !!~scopes.indexOf(item.scope) || scopes.push(item.scope);
       });
       scopes.forEach(function(node) {
         $(node).trigger(_this.options.event.ready);
