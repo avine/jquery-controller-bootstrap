@@ -128,7 +128,8 @@ window.Bootstrap = (function($) {
       var $node = $(node), method;
       for (method in api) {
         $node.on(method, function() {
-          var args = Array.prototype.shift(arguments);
+          var args = arguments;
+          Array.prototype.shift.call(args);
           api[method].apply({}, args);
         });
       }
