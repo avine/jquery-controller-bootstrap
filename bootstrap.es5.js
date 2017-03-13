@@ -45,43 +45,43 @@ window.Bootstrap = (function($) {
     },
 
     findAttr: function($node) {
-      var value = $node.attr(this.options.attr.root);
-      if (typeof value !== 'undefined') {
-        return {isRoot: true, values: this.str2Arr(value)};
+      var ctrl = $node.attr(this.options.attr.root);
+      if (typeof ctrl !== 'undefined') {
+        return {isRoot: true, ctrl: this.str2Arr(ctrl)};
       }
-      value = $node.attr(this.options.attr.part);
-      if (typeof value !== 'undefined') {
-        return {isRoot: false, values: this.str2Arr(value)};
+      ctrl = $node.attr(this.options.attr.part);
+      if (typeof ctrl !== 'undefined') {
+        return {isRoot: false, ctrl: this.str2Arr(ctrl)};
       }
       return null;
     },
 
-    str2Arr: function(value) {
-      return value.replace(/\s/g, '').split(this.options.separator);
+    str2Arr: function(ctrl) {
+      return ctrl.replace(/\s/g, '').split(this.options.separator);
     },
 
     isAlive: function($node) {
-      return !!$node.data(this.options.aliveKey);
+      return !!$node.data(this.options.dataKey);
     },
 
     makeAlive: function() {
       var _this = this,
         scopes = [];
       this.list['new'].forEach(function(item) {
-        var aliveValue = {};
-        item.values.forEach(function(value) {
+        var instances = {};
+        item.ctrl.forEach(function(name) {
           var Controller, channel;
-          if (value in _this.options.controllers) {
-            Controller = _this.options.controllers[value];
-            channel = Bootstrap.getChannel(item.scope, _this.options.event.ready);
-            aliveValue[value] = new Controller(item.node, channel);
+          if (name in _this.options.controllers) {
+            Controller = _this.options.controllers[name];
+            channel = Bootstrap.getChannel(item.scope, _this.options.eventReady);
+            instances[name] = new Controller(item.node, channel);
           }
         });
-        $(item.node).data(_this.options.aliveKey, aliveValue);
+        $(item.node).data(_this.options.dataKey, instances);
         !!~scopes.indexOf(item.scope) || scopes.push(item.scope);
       });
       scopes.forEach(function(node) {
-        $(node).trigger(_this.options.event.ready);
+        $(node).trigger(_this.options.eventReady);
       });
     }
 
@@ -93,14 +93,14 @@ window.Bootstrap = (function($) {
       root: 'data-bootstrap-root',
       part: 'data-bootstrap-part'
     },
-    aliveKey: 'bootstrapCtrls',
-    event: {ready: 'ready.bootstrap'},
+    dataKey: 'bootstrapCtrls',
+    eventReady: 'ready.bootstrap',
     separator: ',',
     controllers: {}
   };
 
   Bootstrap.getChannel = function(scope, eventReady) {
-    eventReady = eventReady || Bootstrap.settings.event.ready;
+    eventReady = eventReady || Bootstrap.settings.eventReady;
     return {
       ready: function(callback) {
         $(scope).one(eventReady, function() { callback(); });
