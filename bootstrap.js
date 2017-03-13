@@ -110,7 +110,7 @@ window.Bootstrap = (function($) {
   Bootstrap.api = {
     define: function(node, api) {
       const $node = $(node);
-      for (const method in api) {
+      for (let method in api) {
         $node.on(method, (event, ...args) => api[method].apply({}, args));
       }
     },
