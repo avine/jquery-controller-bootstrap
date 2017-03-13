@@ -19,15 +19,12 @@ window.Bootstrap = (function($) {
         scope = $('<div>').attr(this.options.attr.virtual, '')[0];
       }
       this.list = {old: [], 'new': []};
-      this.traverse(this.$element, scope, true);
+      this.traverse(this.$element, this.findCtrl(this.$element, scope));
       this.makeAlive();
     },
 
-    traverse: function($node, scope, init) {
+    traverse: function($node, scope) {
       var _this = this;
-      if (init) {
-        scope = this.findCtrl($node, scope);
-      }
       $node.children().each(function(index, child) {
         var $child = $(child);
         _this.traverse($child, _this.findCtrl($child, scope));
@@ -35,22 +32,16 @@ window.Bootstrap = (function($) {
     },
 
     findCtrl: function($node, scope) {
-      var newScope = scope,
-        attr = this.findAttr($node),
-        type;
+      var attr = this.findAttr($node);
       if (attr) {
         if (attr.isRoot) {
-          newScope = $node[0];
+          scope = $node[0];
         }
-        type = this.isAlive($node) ? 'old' : 'new';
-        this.list[type].unshift({
-          isRoot: attr.isRoot,
-          values: attr.values,
-          node: $node[0],
-          scope: newScope
-        });
+        attr.node = $node[0];
+        attr.scope = scope;
+        this.list[this.isAlive($node) ? 'old' : 'new'].unshift(attr);
       }
-      return newScope;
+      return scope;
     },
 
     findAttr: function($node) {

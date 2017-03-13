@@ -17,14 +17,11 @@ window.Bootstrap = (function($) {
         scope = $('<div>').attr(this.options.attr.virtual, '')[0];
       }
       this.list = {old: [], new: []};
-      this.traverse(this.$element, scope, true);
+      this.traverse(this.$element, this.findCtrl(this.$element, scope));
       this.makeAlive();
     }
 
-    traverse($node, scope, init) {
-      if (init) {
-        scope = this.findCtrl($node, scope);
-      }
+    traverse($node, scope) {
       $node.children().each((index, child) => {
         const $child = $(child);
         this.traverse($child, this.findCtrl($child, scope));
@@ -32,21 +29,16 @@ window.Bootstrap = (function($) {
     }
 
     findCtrl($node, scope) {
-      let newScope = scope;
       const attr = this.findAttr($node);
       if (attr) {
         if (attr.isRoot) {
-          newScope = $node[0];
+          scope = $node[0];
         }
-        const type = this.isAlive($node) ? 'old' : 'new';
-        this.list[type].unshift({
-          isRoot: attr.isRoot,
-          values: attr.values,
-          node: $node[0],
-          scope: newScope
-        });
+        attr.node = $node[0];
+        attr.scope = scope;
+        this.list[this.isAlive($node) ? 'old' : 'new'].unshift(attr);
       }
-      return newScope;
+      return scope;
     }
 
     findAttr($node) {
