@@ -113,7 +113,7 @@ window.Bootstrap = (function($) {
       const $node = $(node), apiKey = Bootstrap.settings.apiKey;
       $node.data(apiKey, $.extend($node.data(apiKey) || {}, api));
     },
-    request: function(node, method, args) {
+    request: function(node, method, args = []) {
       const api = $(node).data(Bootstrap.settings.apiKey) || {};
       if (method in api && api[method] instanceof Function) {
         return api[method].apply({}, [].concat(args));

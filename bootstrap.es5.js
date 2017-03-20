@@ -123,7 +123,7 @@ window.Bootstrap = (function($) {
     request: function(node, method, args) {
       var api = $(node).data(Bootstrap.settings.apiKey) || {};
       if (method in api && api[method] instanceof Function) {
-        return api[method].apply({}, [].concat(args));
+        return api[method].apply({}, typeof args === 'undefined' ? [] : [].concat(args));
       }
       return null;
     }
