@@ -58,7 +58,7 @@ window.Bootstrap = (function($) {
     }
 
     isAlive($node) {
-      return !!$node.data(this.options.dataKey);
+      return !!$node.data(this.options.ctrlsKey);
     }
 
     makeAlive() {
@@ -72,7 +72,7 @@ window.Bootstrap = (function($) {
             instances[name] = new Controller(item.node, channel);
           }
         });
-        $(item.node).data(this.options.dataKey, instances);
+        $(item.node).data(this.options.ctrlsKey, instances);
         scopes.includes(item.scope) || scopes.push(item.scope);
       });
       scopes.forEach(node => $(node).trigger(this.options.eventReady));
@@ -86,7 +86,8 @@ window.Bootstrap = (function($) {
       root: 'data-bootstrap-root',
       part: 'data-bootstrap-part'
     },
-    dataKey: 'bootstrapCtrls',
+    ctrlsKey: 'bootstrapCtrls',
+    apiKey: 'bootstrapApi',
     eventReady: 'ready.bootstrap',
     separator: ',',
     controllers: {}
@@ -109,13 +110,15 @@ window.Bootstrap = (function($) {
 
   Bootstrap.api = {
     define: function(node, api) {
-      const $node = $(node);
-      for (let method in api) {
-        $node.on(method, (event, ...args) => api[method].apply({}, args));
-      }
+      const $node = $(node), apiKey = Bootstrap.settings.apiKey;
+      $node.data(apiKey, $.extend($node.data(apiKey) || {}, api));
     },
     request: function(node, method, args) {
-      $(node).trigger(method, args);
+      const api = $(node).data(Bootstrap.settings.apiKey) || {};
+      if (method in api && api[method] instanceof Function) {
+        return api[method].apply({}, [].concat(args));
+      }
+      return null;
     }
   };
 

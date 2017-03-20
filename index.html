@@ -83,7 +83,16 @@
         console.log('Parent', node, channel);
 
         $(node).click(function (){
-          Bootstrap.api.request($(node).children('[data-bootstrap-part="Child2"]'), 'sayHello', [1, 2, 3]);
+
+          var $child2 = $(node).children('[data-bootstrap-part="Child2"]');
+
+          //Bootstrap.api.request($child2, 'sayHello', [1, 2, 3], function (result) {
+          //  console.log('result :)', result);
+          //});
+
+          var result = Bootstrap.api.request($child2, 'sayHello', [1, 2, 3]);
+          console.log('result :-)', result);
+
         });
         
       },
@@ -118,8 +127,8 @@
         });
 
         Bootstrap.api.define(node, {
-          sayHello: function () {
-            console.log('hello from Child2!', arguments);
+          sayHello: function (a, b, c) {
+            return 'hello from Child2!' + a + b + c;
           }
         });
       }
