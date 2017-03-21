@@ -44,6 +44,17 @@ module.exports = function(config) {
     reporters: ['spec', 'coverage'],
 
 
+    // optionally, configure the reporter 
+    coverageReporter: [{
+      type: 'html',
+      dir: 'coverage/'
+    }],
+
+
+    // hostname (default: 'localhost')
+    hostname: '127.0.0.1',
+
+
     // web server port
     port: 9876,
 
@@ -58,7 +69,7 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
+    autoWatch: true,
 
 
     // start these browsers
@@ -68,19 +79,11 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: true,
+    singleRun: false,
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity,
-
-    // --- //
-
-    // optionally, configure the reporter 
-    coverageReporter: [{
-      type: 'html',
-      dir: 'coverage/'
-    }]
+    concurrency: Infinity
 
   });
 };

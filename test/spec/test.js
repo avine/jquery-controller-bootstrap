@@ -21,4 +21,14 @@ describe('Test', function() {
     expect(jQuery('#my-fixture').length).toEqual(1);
   });
 
+  it('should handle click!', function() {
+    var x = 0, $a = jQuery('#my-click');
+
+    $a.on('click', () => x++);
+
+    $a.trigger('click');
+
+    expect(x).toEqual(1);
+  });
+
 });
