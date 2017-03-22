@@ -107,10 +107,13 @@ window.Bootstrap = (function($) {
         $(scope).one(eventReady, function() { callback(); });
       },
       listen: function(event, callback, once) {
-        $(scope)[once ? 'one' : 'on'](event, function(e, data) { callback(data); });
+        $(scope)[once ? 'one' : 'on'](event, function() {
+          [].shift.call(arguments);
+          callback.apply({}, arguments);
+        });
       },
       dispatch: function(event, data) {
-        $(scope).trigger(event, data);
+        $(scope).trigger(event, [].concat(data));
       }
     };
   };

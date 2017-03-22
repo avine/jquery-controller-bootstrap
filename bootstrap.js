@@ -100,10 +100,10 @@ window.Bootstrap = (function($) {
         $(scope).one(eventReady, () => callback());
       },
       listen: function(event, callback, once) {
-        $(scope)[once ? 'one' : 'on'](event, (e, data) => callback(data));
+        $(scope)[once ? 'one' : 'on'](event, (e, ...data) => callback.apply({}, data));
       },
       dispatch: function(event, data) {
-        $(scope).trigger(event, data);
+        $(scope).trigger(event, [].concat(data));
       }
     };
   };
