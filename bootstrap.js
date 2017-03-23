@@ -93,8 +93,7 @@ window.Bootstrap = (function($) {
     controllers: {}
   };
 
-  Bootstrap.getChannel = function(scope, eventReady) {
-    eventReady = eventReady || Bootstrap.settings.eventReady;
+  Bootstrap.getChannel = function(scope, eventReady = Bootstrap.settings.eventReady) {
     return {
       ready: function(callback) {
         $(scope).one(eventReady, () => callback());
