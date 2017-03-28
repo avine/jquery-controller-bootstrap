@@ -1,11 +1,10 @@
 /* eslint-env jasmine */
 /* global jQuery, loadFixtures, testGet */
 
-describe('Test', function() {
+const basepath = this.parent.karma ? 'base/test/' : '';
+jasmine.getFixtures().fixturesPath = `${basepath}fixtures/`;
 
-  beforeEach(function() {
-    jasmine.getFixtures().fixturesPath = 'base/test/fixtures/';
-  });
+describe('Test', function() {
 
   beforeEach(function() {
     loadFixtures('test.html');
