@@ -1,5 +1,5 @@
 // Karma configuration
-// Generated on Mon Mar 13 2017 17:30:55 GMT+0100 (CET)
+// Generated on Tue Mar 28 2017 06:15:24 GMT+0200 (CEST)
 
 module.exports = function(config) {
   config.set({
@@ -31,10 +31,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      // source files, that you wanna generate coverage for 
-      // do not include tests or libraries 
-      // (these files will be instrumented by Istanbul) 
-      'testGet.js': ['coverage']
+      'testGet.js': ['coverage']      
     },
 
 
@@ -80,6 +77,7 @@ module.exports = function(config) {
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,
+
 
     // Concurrency level
     // how many browser should be started simultaneous
