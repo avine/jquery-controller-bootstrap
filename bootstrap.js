@@ -78,6 +78,20 @@ window.Bootstrap = (function($) {
       scopes.forEach(node => $(node).trigger(this.options.eventReady));
     }
 
+    static getChannel(scope, eventReady = Bootstrap.settings.eventReady) {
+      return {
+        ready: function(callback) {
+          $(scope).one(eventReady, () => callback());
+        },
+        listen: function(event, callback, once) {
+          $(scope)[once ? 'one' : 'on'](event, (e, ...data) => callback.apply({}, data));
+        },
+        dispatch: function(event, data) {
+          $(scope).trigger(event, [].concat(data));
+        }
+      };
+    }
+
   }
 
   Bootstrap.settings = {
@@ -91,20 +105,6 @@ window.Bootstrap = (function($) {
     eventReady: 'ready.bootstrap',
     separator: ',',
     controllers: {}
-  };
-
-  Bootstrap.getChannel = function(scope, eventReady = Bootstrap.settings.eventReady) {
-    return {
-      ready: function(callback) {
-        $(scope).one(eventReady, () => callback());
-      },
-      listen: function(event, callback, once) {
-        $(scope)[once ? 'one' : 'on'](event, (e, ...data) => callback.apply({}, data));
-      },
-      dispatch: function(event, data) {
-        $(scope).trigger(event, [].concat(data));
-      }
-    };
   };
 
   Bootstrap.api = {
