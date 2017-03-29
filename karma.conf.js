@@ -15,11 +15,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'node_modules/jquery/dist/jquery.min.js',
-      'bootstrap.js',
-      'testGet.js',
-      'test/spec/**/*.*',
-      'test/fixtures/**/*.*'
+      'dist/vendor/jquery.min.js',
+      'dist/lib/bootstrap.js',
+      'dist/lib/testGet.js',
+      'dist/test/spec/**/*.*',
+      'dist/test/fixtures/**/*.*'
     ],
 
 
@@ -44,7 +44,7 @@ module.exports = function(config) {
     // optionally, configure the reporter 
     coverageReporter: [{
       type: 'html',
-      dir: 'coverage/'
+      dir: 'dist/coverage/' // This is not working...
     }],
 
 
