@@ -3,9 +3,27 @@
 'use strict';
 
 window.Bootstrap = (function($) {
+  const settings = {
+    options: {
+      attr: {
+        virtual: 'data-bootstrap-virtual',
+        root: 'data-bootstrap-root',
+        part: 'data-bootstrap-part'
+      },
+      controllers: {}
+    },
+    event: {
+      ready: 'ready.bootstrap'
+    },
+    key: {
+      ctrls: 'bootstrapCtrls',
+      api: 'bootstrapApi',
+    }
+  };
+
   function Bootstrap(element, options) {
     this.$element = $(element);
-    this.options = $.extend({}, Bootstrap.settings, options || {});
+    this.options = $.extend({}, settings.options, options || {});
     this.parse();
   }
 
@@ -46,22 +64,21 @@ window.Bootstrap = (function($) {
 
     findAttr: function($node) {
       var ctrl = $node.attr(this.options.attr.root);
-      if (typeof ctrl !== 'undefined') {
-        return {isRoot: true, ctrl: this.str2Arr(ctrl)};
+      if (typeof ctrl === 'undefined') {
+        ctrl = $node.attr(this.options.attr.part);
       }
-      ctrl = $node.attr(this.options.attr.part);
-      if (typeof ctrl !== 'undefined') {
-        return {isRoot: false, ctrl: this.str2Arr(ctrl)};
+      if (typeof ctrl === 'undefined') {
+        return null;
       }
-      return null;
+      return {isRoot: false, ctrl: this.str2Arr(ctrl)};
     },
 
     str2Arr: function(ctrl) {
-      return ctrl.replace(/\s/g, '').split(this.options.separator);
+      return ctrl.replace(/\s/g, '').split(',');
     },
 
     isAlive: function($node) {
-      return !!$node.data(this.options.ctrlsKey);
+      return !!$node.data(settings.key.ctrls);
     },
 
     makeAlive: function() {
@@ -72,42 +89,28 @@ window.Bootstrap = (function($) {
         item.ctrl.forEach(function(name) {
           var Controller = _this.options.controllers, prop = name.split('.'), channel;
           do {
-            Controller = Controller[prop.shift() || ''];
-          } while (prop.length);
+            Controller = Controller[prop.shift()];
+          } while (Controller && prop.length);
           if (Controller) {
             Controller = _this.options.controllers[name];
-            channel = Bootstrap.getChannel(item.scope, _this.options.eventReady);
+            channel = Bootstrap.getChannel(item.scope);
             instances[name] = new Controller(item.node, channel);
           }
         });
-        $(item.node).data(_this.options.ctrlsKey, instances);
+        $(item.node).data(settings.key.ctrls, instances);
         !!~scopes.indexOf(item.scope) || scopes.push(item.scope);
       });
       scopes.forEach(function(node) {
-        $(node).trigger(_this.options.eventReady);
+        $(node).trigger(settings.event.ready);
       });
     }
 
   };
 
-  Bootstrap.settings = {
-    attr: {
-      virtual: 'data-bootstrap-virtual',
-      root: 'data-bootstrap-root',
-      part: 'data-bootstrap-part'
-    },
-    ctrlsKey: 'bootstrapCtrls',
-    apiKey: 'bootstrapApi',
-    eventReady: 'ready.bootstrap',
-    separator: ',',
-    controllers: {}
-  };
-
-  Bootstrap.getChannel = function(scope, eventReady) {
-    eventReady = eventReady || Bootstrap.settings.eventReady;
+  Bootstrap.getChannel = function(scope) {
     return {
       ready: function(callback) {
-        $(scope).one(eventReady, function() { callback(); });
+        $(scope).one(settings.event.ready, function() { callback(); });
       },
       listen: function(event, callback, once) {
         $(scope)[once ? 'one' : 'on'](event, function() {
@@ -123,17 +126,19 @@ window.Bootstrap = (function($) {
 
   Bootstrap.api = {
     define: function(node, api) {
-      var $node = $(node), apiKey = Bootstrap.settings.apiKey;
-      $node.data(apiKey, $.extend($node.data(apiKey) || {}, api));
+      var $node = $(node);
+      $node.data(settings.key.api, $.extend($node.data(settings.key.api) || {}, api));
     },
     request: function(node, method, args) {
-      var api = $(node).data(Bootstrap.settings.apiKey) || {};
+      var api = $(node).data(settings.key.api) || {};
       if (method in api && api[method] instanceof Function) {
         return api[method].apply({}, typeof args === 'undefined' ? [] : [].concat(args));
       }
       return null;
     }
   };
+
+  Bootstrap.settings = settings;
 
   return Bootstrap;
 }(jQuery));
