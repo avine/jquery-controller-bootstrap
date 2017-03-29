@@ -3,7 +3,7 @@
 'use strict';
 
 window.Bootstrap = (function($) {
-  const settings = {
+  var settings = {
     options: {
       attr: {
         virtual: 'data-bootstrap-virtual',
