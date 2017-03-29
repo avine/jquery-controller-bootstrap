@@ -29,15 +29,15 @@
 
   <div data-bootstrap-root="Parent, Extra">
     Parent
-    <div data-bootstrap-part="Child1">
+    <div data-bootstrap-part="Child.Child1">
 
       Child1
-      <div data-bootstrap-part="Child2">
+      <div data-bootstrap-part="Child.Child2">
         Sub1
       </div>
 
     </div>
-    <div data-bootstrap-part="Child2">
+    <div data-bootstrap-part="Child.Child2">
 
       Child2 <input type="text" />
 
@@ -84,7 +84,7 @@
 
         $(node).click(function (){
 
-          var $child2 = $(node).children('[data-bootstrap-part="Child2"]');
+          var $child2 = $(node).children('[data-bootstrap-part="Child.Child2"]');
 
           //Bootstrap.api.request($child2, 'sayHello', [1, 2, 3], function (result) {
           //  console.log('result :)', result);
@@ -97,40 +97,46 @@
         
       },
 
-      Child1: function (node, channel) {
-        this.node = node;
-        this.channel = channel;
+      Child: {
 
-        console.log('Child1', node, channel);
+        Child1: function (node, channel) {
+          this.node = node;
+          this.channel = channel;
 
-        channel.listen('inputChange', function (data) {
-          console.info('Child1: inputChange', data);
-          $(node).append('<div>'+data+'</div>');
-        });
+          console.log('Child1', node, channel);
 
-      },
+          channel.listen('inputChange', function (data) {
+            console.info('Child1: inputChange', data);
+            $(node).append('<div>'+data+'</div>');
+          });
 
-      Child2: function (node, channel) {
-        this.node = node;
-        this.channel = channel;
+        },
 
-        var $input = $(node).find('input');
+        Child2: function (node, channel) {
+          this.node = node;
+          this.channel = channel;
 
-        $input.on('change', function (e) {
-          channel.dispatch('inputChange', $input.val());
-        });
+          console.log('Child2', node, channel);
 
-        channel.ready(function () {
-          console.log('Child2 ready!');
-          $input.val('Ready');
-          $input.trigger('change');
-        });
+          var $input = $(node).find('input');
 
-        Bootstrap.api.define(node, {
-          sayHello: function (a, b, c) {
-            return 'hello from Child2!' + a + b + c;
-          }
-        });
+          $input.on('change', function (e) {
+            channel.dispatch('inputChange', $input.val());
+          });
+
+          channel.ready(function () {
+            console.log('Child2 ready!');
+            $input.val('Ready');
+            $input.trigger('change');
+          });
+
+          Bootstrap.api.define(node, {
+            sayHello: function (a, b, c) {
+              return 'hello from Child2!' + a + b + c;
+            }
+          });
+        }
+
       }
 
     };

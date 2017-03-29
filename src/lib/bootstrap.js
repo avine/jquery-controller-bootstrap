@@ -66,8 +66,11 @@ window.Bootstrap = (function($) {
       this.list.new.forEach(item => {
         const instances = {};
         item.ctrl.forEach(name => {
-          if (name in this.options.controllers) {
-            const Controller = this.options.controllers[name];
+          let Controller = this.options.controllers, prop = name.split('.');
+          do {
+            Controller = Controller[prop.shift()];
+          } while (prop.length);
+          if (Controller) {
             const channel = Bootstrap.getChannel(item.scope, this.options.eventReady);
             instances[name] = new Controller(item.node, channel);
           }
