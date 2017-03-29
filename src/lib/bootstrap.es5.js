@@ -72,7 +72,7 @@ window.Bootstrap = (function($) {
         item.ctrl.forEach(function(name) {
           var Controller = _this.options.controllers, prop = name.split('.'), channel;
           do {
-            Controller = Controller[prop.shift()];
+            Controller = Controller[prop.shift() || ''];
           } while (prop.length);
           if (Controller) {
             Controller = _this.options.controllers[name];

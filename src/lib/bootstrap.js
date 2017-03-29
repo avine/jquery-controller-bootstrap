@@ -68,7 +68,7 @@ window.Bootstrap = (function($) {
         item.ctrl.forEach(name => {
           let Controller = this.options.controllers, prop = name.split('.');
           do {
-            Controller = Controller[prop.shift()];
+            Controller = Controller[prop.shift() || ''];
           } while (prop.length);
           if (Controller) {
             const channel = Bootstrap.getChannel(item.scope, this.options.eventReady);
